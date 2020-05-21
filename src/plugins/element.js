@@ -10,3 +10,4 @@ import ui from 'element-ui'
 Vue.use(ui)
 
 Vue.prototype.$message = ui.Message
+Vue.prototype.$confirm = ui.MessageBox.confirm

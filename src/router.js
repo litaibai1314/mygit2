@@ -17,32 +17,36 @@ import vue from "vue"
 import Router from "vue-router"
 import login from "./components/Login.vue"
 import home from "./components/Home.vue"
-import home1 from "./components/Home1.vue"
+import right from "./components/quanxian/Right.vue"
+import users from "./components/user/users.vue"
+import roles from "./components/quanxian/Roles.vue"
 vue.use(Router)
 const router = new Router({
   routes: [
-    { path: "/", redirect: "/home" },
+    { path: "/", redirect: "/login" },
     { path: "/login", component: login },
     {
       path: "/home", component: home, children: [
-        { path: "/home1", component: home1 }
+        { path: "/rights", component: right },
+        { path: "/users", component: users },
+        { path: "/roles", component: roles },
       ]
     },
   ]
 })
-export default router
-// 挂载路由导航守卫
-// router.beforeEach((to, from, next) => {
-//   // to 将要访问的路径
-//   // from 代表从哪个路径跳转而来
-//   // next 是一个函数，表示放行
-//   //     next()  放行    next('/login')  强制跳转
-
-//   if (to.path === '/login') return next()
-//   // 获取token
-//   const tokenStr = window.sessionStorage.getItem('token')
-//   if (!tokenStr) return next('/login')
-//   next()
-// })
-
 // export default router
+// 挂载路由导航守卫
+router.beforeEach((to, from, next) => {
+  // to 将要访问的路径
+  // from 代表从哪个路径跳转而来
+  // next 是一个函数，表示放行
+  //     next()  放行    next('/login')  强制跳转
+
+  if (to.path === '/login') return next()
+  // 获取token
+  const tokenStr = window.sessionStorage.getItem('token')
+  if (!tokenStr) return next('/login')
+  next()
+})
+
+export default router

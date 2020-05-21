@@ -3,7 +3,7 @@
     <el-container>
       <el-header>
         Header
-        <el-button type="info" disabled class="btn">退出</el-button>
+        <el-button type="info" class="btn" @click="logout">退出</el-button>
       </el-header>
       <el-container>
         <el-aside :width="iscollapse?'64px':'200px'">
@@ -15,38 +15,28 @@
             background-color="#002b36"
             text-color="#fff"
             active-text-color="red"
+            router
           >
-            <el-submenu index="1">
+            <!-- 一级列表 -->
+            <el-submenu :index="item1.id+''" v-for="item1 in menulist " :key="item1.id">
               <template slot="title">
                 <i class="el-icon-location"></i>
-                <span>导航一</span>
+                <span>{{item1.authName}}</span>
               </template>
               <el-menu-item-group>
-                <el-menu-item index="1-1" @click="handel">选项1</el-menu-item>
-                <el-menu-item index="1-2">选项2</el-menu-item>
-              </el-menu-item-group>
-            </el-submenu>
-            <el-submenu index="2">
-              <template slot="title">
-                <i class="el-icon-menu"></i>
-                <span>导航二</span>
-              </template>
-            </el-submenu>
-            <el-menu-item index="3">
-              <i class="el-icon-document"></i>
-              <span slot="title">导航三</span>
-            </el-menu-item>
-            <el-submenu index="4">
-              <template slot="title">
-                <i class="el-icon-setting"></i>
-                <span slot="title">导航四</span>
-              </template>
-              <el-menu-item index="4">
-                <el-menu-item index="1-1" @click="handel">
-                  <i class="el-icon-setting"></i>
-                  <span slot="title">导航四</span>
+                <!-- 二级列表 -->
+
+                <el-menu-item
+                  :index="'/'+item2.path"
+                  v-for="item2 in item1.children"
+                  :key="item2.id"
+                >
+                  <template slot="title">
+                    <i class="el-icon-location"></i>
+                    <span>{{item2.authName}}</span>
+                  </template>
                 </el-menu-item>
-              </el-menu-item>
+              </el-menu-item-group>
             </el-submenu>
           </el-menu>
         </el-aside>
@@ -62,8 +52,23 @@
 export default {
   data() {
     return {
-      iscollapse: false
+      iscollapse: false,
+      menulist: [],
+
+      iconsObj: {
+        "125": "iconfont icon-user",
+        "103": "iconfont icon-tijikongjian",
+        "101": "iconfont icon-shangpin",
+        "102": "iconfont icon-danju",
+        "145": "iconfont icon-baobiao"
+      },
+      activePath: ""
     };
+  },
+  created() {
+    this.getMenuList();
+    this.activePath = window.sessionStorage.getItem("activePath");
+    // this.handel();
   },
   methods: {
     logout() {
@@ -74,7 +79,18 @@ export default {
       this.iscollapse = !this.iscollapse;
     },
     handel() {
-      this.$router.push("/home1");
+      this.$router.push("/users");
+    },
+    async getMenuList() {
+      const { data: res } = await this.$http.get("menus");
+      if (res.meta.status !== 200) return this.$message.error(res.meta.msg);
+      this.menulist = res.data;
+      this.$message.success(res.meta.msg);
+      console.log(res);
+    },
+    saveNavState(activePath) {
+      window.sessionStorage.setItem("activePath", activePath);
+      this.activePath = activePath;
     }
   }
 };
@@ -116,8 +132,14 @@ export default {
     cursor: pointer;
     color: blue;
   }
+  // 菜单
   .el-menu {
     border: 0;
+    // 二级菜单
+    .el-menu-item-group {
+      font-size: 15px;
+      padding-left: 20px;
+    }
   }
 }
 </style>
